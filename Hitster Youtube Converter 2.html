@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hitster vers YouTube</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background-color: #f9f9f9;
+      color: #333;
+      max-width: 600px;
+      margin: auto;
+    }
+    input, button {
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-top: 1rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    a {
+      display: block;
+      margin-top: 1.5rem;
+      font-weight: bold;
+      color: #1a73e8;
+    }
+    #reader {
+      width: 100%;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hitster → YouTube 🎧</h1>
+  <p>Tu peux scanner un QR code directement ou coller un lien Spotify :</p>
+  <button onclick="startScanner()">📷 Scanner un QR code</button>
+  <input type="text" id="spotifyLink" placeholder="https://open.spotify.com/track/...">
+  <button onclick="convertToYouTube()">🔍 Chercher sur YouTube</button>
+  <div id="reader" style="display: none;"></div>
+
+  <script>
+    function startScanner() {
+      const reader = document.getElementById('reader');
+      reader.style.display = 'block';
+
+      const html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        qrCodeMessage => {
+          html5QrCode.stop();
+          reader.style.display = 'none';
+          document.getElementById('spotifyLink').value = qrCodeMessage;
+          convertToYouTube();
+        },
+        errorMessage => {
+          // Ignorer les erreurs de lecture
+        }
+      ).catch(err => {
+        alert("Erreur d'accès à la caméra : " + err);
+      });
+    }
+
+    function convertToYouTube() {
+      const input = document.getElementById('spotifyLink').value;
+      const match = input.match(/track\/([a-zA-Z0-9]+)/);
+      if (match) {
+        const trackId = match[1];
+        const ytSearchUrl = `https://www.youtube.com/results?search_query=spotify+track+${trackId}`;
+        window.open(ytSearchUrl, '_blank');
+      } else {
+        alert('Lien Spotify invalide. Assure-toi de coller un lien comme https://open.spotify.com/track/...');
+      }
+    }
+  </script>
+</body>
+</html>
